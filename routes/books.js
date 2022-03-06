@@ -12,7 +12,7 @@ router.post('/', async (req,res) => {
             name: req.body.authorName,
             age: req.body.authorAge,
         },
-        gender: req.body.gender 
+        gender: req.body.gender
     });
 
     book.save().then(book => {
