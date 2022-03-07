@@ -6,6 +6,18 @@ const winston = require('winston');
 const app = express();
 
 require('dotenv').config();
+
+const { auth } = require('express-openid-connect');
+
+const config = {
+  authRequired: false,
+  auth0Logout: true,
+  secret: process.env.SECRET,
+  baseURL: process.env.BASE_URL,
+  clientID: process.env.CLIENT_ID,
+  issuerBaseURL: process.env.ISSUER_BASE_URL
+};
+
 const booksRoute = require('./routes/books');
 
 const PORT = process.env.PORT || 3000;
@@ -13,6 +25,8 @@ const PORT = process.env.PORT || 3000;
 //middlewares
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
+// auth router attaches /login, /logout, and /callback routes to the baseURL
+app.use(auth(config));
 
 //create a logger
 const logger = winston.createLogger({
@@ -31,7 +45,11 @@ const logger = winston.createLogger({
 })
 
 //routes
+
 app.use('/api/books', booksRoute);
+app.get('/', (req,res) => {
+    res.send(req.oidc.isAuthenticated() ? 'Connecté' : 'Non connecté');
+})
 
 //Pour log des exeptions
 //throw new Error();
